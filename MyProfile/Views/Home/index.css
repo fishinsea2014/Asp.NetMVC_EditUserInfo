@@ -1,0 +1,4 @@
+﻿div [class*="col"] {
+    border: 1px solid;
+    height: 20px;
+}
