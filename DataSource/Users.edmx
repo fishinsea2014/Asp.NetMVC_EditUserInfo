@@ -28,9 +28,10 @@
     <Property Name="Title" Type="nvarchar(max)" Nullable="false" />
     <Property Name="OrgName" Type="nvarchar(max)" Nullable="false" />
     <Property Name="Password" Type="nvarchar(max)" Nullable="false" />
-    <Property Name="TimeZone" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="TimeZoneId" Type="nvarchar(max)" Nullable="true" />
     <Property Name="PhotoLink" Type="nvarchar(max)" Nullable="true" />
     <Property Name="DelFlag" Type="smallint" Nullable="true" />
+    <Property Name="DefaultTimeZoneId" Type="nvarchar(max)" Nullable="true" />
   </EntityType>
   <EntityType Name="Permission">
     <Key>
@@ -101,10 +102,11 @@
           <Property Name="Title" Type="String" Nullable="false" />
           <Property Name="OrgName" Type="String" Nullable="false" />
           <Property Name="Password" Type="String" Nullable="false" />
-          <Property Name="TimeZone" Type="String" Nullable="false" />
+          <Property Name="TimeZoneId" Type="String" Nullable="true" />
           <Property Name="PhotoLink" Type="String" Nullable="true" />
           <Property Name="DelFlag" Type="Int16" Nullable="true" />
           <NavigationProperty Name="Permissions" Relationship="Users.UserPermission" FromRole="User" ToRole="Permission" />
+          <Property Name="DefaultTimeZoneId" Type="String" Nullable="true" />
         </EntityType>
         <EntityType Name="Permission">
           <Key>
@@ -166,9 +168,10 @@
           <ScalarProperty Name="Title" ColumnName="Title" />
           <ScalarProperty Name="OrgName" ColumnName="OrgName" />
           <ScalarProperty Name="Password" ColumnName="Password" />
-          <ScalarProperty Name="TimeZone" ColumnName="TimeZone" />
+          <ScalarProperty Name="TimeZoneId" ColumnName="TimeZoneId" />
           <ScalarProperty Name="PhotoLink" ColumnName="PhotoLink" />
           <ScalarProperty Name="DelFlag" ColumnName="DelFlag" />
+          <ScalarProperty Name="DefaultTimeZoneId" ColumnName="DefaultTimeZoneId" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>

@@ -50,6 +50,7 @@
     <Compile Include="Actions.cs">
       <DependentUpon>Users.tt</DependentUpon>
     </Compile>
+    <Compile Include="Enum\PermissionEnum.cs" />
     <Compile Include="Model1.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

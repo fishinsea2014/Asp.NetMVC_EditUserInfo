@@ -6,7 +6,7 @@
     <edmx:Diagrams>
       <Diagram DiagramId="6d18079edfad488d99d8f9ae789a352e" Name="Diagram1" >
         <EntityTypeShape EntityType="Users.User" Width="1.5" PointX="3" PointY="1.375" />
-        <EntityTypeShape EntityType="Users.Permission" Width="1.5" PointX="8.25" PointY="2.875" />
+        <EntityTypeShape EntityType="Users.Permission" Width="1.5" PointX="8.5" PointY="1.625" />
         <EntityTypeShape EntityType="Users.Actions" Width="1.5" PointX="3.375" PointY="5.375" />
         <AssociationConnector Association="Users.UserPermission" />
         <AssociationConnector Association="Users.ActionsPermission" />

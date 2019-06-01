@@ -2,7 +2,7 @@
 -- --------------------------------------------------
 -- Entity Designer DDL Script for SQL Server 2005, 2008, 2012 and Azure
 -- --------------------------------------------------
--- Date Created: 05/09/2019 14:41:05
+-- Date Created: 05/25/2019 16:32:19
 -- Generated from EDMX file: D:\my_projects\Interview_Netflex\MVC\MyProfile\DataSource\Users.edmx
 -- --------------------------------------------------
 
@@ -50,9 +50,10 @@ CREATE TABLE [dbo].[User] (
     [Title] nvarchar(max)  NOT NULL,
     [OrgName] nvarchar(max)  NOT NULL,
     [Password] nvarchar(max)  NOT NULL,
-    [TimeZone] nvarchar(max)  NOT NULL,
+    [TimeZoneId] nvarchar(max)  NULL,
     [PhotoLink] nvarchar(max)  NULL,
-    [DelFlag] smallint  NULL
+    [DelFlag] smallint  NULL,
+    [DefaultTimeZoneId] nvarchar(max)  NULL
 );
 GO
 

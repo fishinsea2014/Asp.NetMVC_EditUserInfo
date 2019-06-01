@@ -25,9 +25,10 @@ namespace DataSource
         public string Title { get; set; }
         public string OrgName { get; set; }
         public string Password { get; set; }
-        public string TimeZone { get; set; }
+        public string TimeZoneId { get; set; }
         public string PhotoLink { get; set; }
         public Nullable<short> DelFlag { get; set; }
+        public string DefaultTimeZoneId { get; set; }
     
         public virtual ICollection<Permission> Permissions { get; set; }
     }

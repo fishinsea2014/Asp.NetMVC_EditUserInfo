@@ -10,10 +10,17 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1">
     <meta name="renderer" content="webkit">
     <title>My Profile</title>
-    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
-    <script src="~/Scripts/bootstrap.js"></script>
     <link href="~/Content/bootstrap.css" rel="stylesheet" />
     <link href="~/Content/bootstrap-theme.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrapValidator.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+    <script src="~/Scripts/bootstrapValidator.min.js"></script>
+    <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jstimezonedetect/1.0.4/jstz.min.js'></script>
+
+    @*<script src="~/Scripts/jstz.min.js"></script>*@
+
     <!--[if lte IE 8]>
     <script type="text/javascript" src="js/respond.js"></script>
     <![endif]-->
@@ -23,93 +30,175 @@
             height: 20px;
         }
 
-        .container{
-            background-color:gray;
-            padding:10px;
+        .container {
+            background-color: gray;
+            padding: 10px;
             height: 60em;
         }
 
-        .title{
-            height:16em;
-
+        .title {
+            height: 16em;
         }
 
-        .password{
-            height:20em;
+        .password {
+            height: 20em;
         }
 
-        .timezone{
-            height:20em;
+        .timezone {
+            height: 22em;
         }
 
-        .permission{
-            height:18em;
+        .permission {
+            height: 18em;
         }
-        .container{
-            margin:15px;
-            border:3px double;
 
+        .container {
+            margin: 15px;
+            border: 3px double;
         }
 
         .form-control {
-            margin:6px;
+            margin: 6px;
         }
 
         .pwd-btns {
-            margin-left:20px;
-
+            margin-left: 20px;
         }
 
         hr {
             height: 1px;
             border: none;
             border-top: 1px dashed #1E90FF;
-            width:100%;
+            width: 100%;
         }
 
         .thumbnail {
-            margin-right:1em;
+            margin-right: 1em;
         }
-
-
     </style>
     <script type="text/javascript">
         jQuery(document).ready(function ($) {
-            //$.getJSON("Init", {}, function (data) {
 
-            //    $("#full-name").text(data.user.FName + " " + data.user.LName);
-            //    $("#title").text(data.user.Title);
-            //    $("#org").text(data.user.OrgName);
-            //});
             $("#edit-name-icon").click(function () {
                 $("#edit-name-dialog").modal(
                 );
-            }); 
-            $("update-name").click(function () {
-                alert("press update name");
             });
+
+
+            $("#pwdForm").bootstrapValidator({
+                message: 'This value is invalid',
+                feedbackIcons: {
+                    valid: 'glyphicon glyphion-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+                fields: {
+                    prePwd: {
+                        message: 'The previous password is invalid',
+                        validators: {
+                            notEmpty: {
+                                message: 'The previous password is required and can not be empty'
+                            }
+                        }
+                    },
+                    newPwd: {
+                        message: 'The new password is invalid',
+                        validators: {
+                            notEmpty: {
+                                message: 'The new password is required and can not be empty'
+                            },
+                            stringLength: {
+                                min: 6,
+                                message: 'The new password must be more than 6'
+                            },
+                            regexp: {
+                                regexp: /^[^ ]+$/,
+                                message: 'The password can not have spaces'
+                            }
+                        }
+                    },
+                    confirmPwd: {
+                        message: 'The new password is invalid',
+                        validators: {
+                            notEmpty: {
+                                message: 'The confirmed password is required and can not be empty'
+                            },
+                            identical: {
+                                field: 'newPwd',
+                                message: 'The two new passwords do not match.'
+                            }
+                        }
+                    }
+                }
+            }).on('success.form.bv', function (e) {
+                //Prevent the bootstrap validator to post twice
+                e.preventDefault();
+            });
+
+            setCurTimezone();
+
         });
 
-        function cc() {
-            //alert("hello");
-            new Promise(function (resolve, reject) {
-                $("#form1").submit();
-            })().then(res => {
-                alert("OK")
-            });
-            
+        function setCurTimezone() {
+            var nowDate = new Date().getTime().toLocaleString();
+            //var jstz = require('jstz');
+            var timezone = jstz.determine();
+            $("#cur-timezone").text(timezone.name() );
         }
 
-             
+        function afterChangePwd(data) {
+            if (data == "ok") {
+                alert("Changing password succeed.");
+                document.getElementById("pwdForm").reset();
+                //$("#pwdForm").reset();
+            } else {
+                alert("Changing password failed.")
+            }
+        }
 
-       
+        function afterUpdateName(data) {
+            if (data == "failed") {
+                alert('Failed to update user name');
+            } else {
+                $("#edit-name-dialog").modal('hide');
+                loadUserinfo(data);
+                //window.location.reload();
+            }
+        }
+
+        function loadUserinfo(data) {
+            $("#full-name").text(data.FName + ' ' + data.LName);
+            $("#title").text(data.Title);
+            $("#org").text(data.Org);
+        }
+
+        function afterUpdateTimezone(data) {
+            if (data == "ok") {
+                alert('Update timezone succeed.')
+            } else {
+                alert('Failed to update timezone.')
+            }
+        }
+
+        function requestPermission(obj) {
+            var thisObj = $(obj);
+            var actionId = thisObj.attr("actionId");            
+            $("#edit-request-dialog").modal();
+            $("#permission-dialog-actionId").attr("");
+            $("#request-dialog-title").text(actionId);
+            $("#permission-dialog-actionId").val(actionId);            
+        }
+
+        function afterSetPermission(data) {
+            alert(data);
+        }
     </script>
 </head>
 <body>
     
     <div class="container">
         <div><h2>My Profile</h2></div>
-        <div class="col-md-6 ">
+        <div class="col-md-6">
             <div class="well title">
                 <div>
                     <div class="pull-left">
@@ -119,38 +208,38 @@
                     </div>
                     <div class="center-block">
                         <h3 id="full-name">@Model.FName  @Model.LName</h3>
-                        <span class="glyphicon glyphicon-pencil" id="edit-name-icon" onclick="afterUpdateName"></span>
+                        <span class="glyphicon glyphicon-pencil" id="edit-name-icon" ></span>
                     </div>
                 </div>
                 <HR >
                 <h3 id="title"> @Model.Title</h3>
                 <h4 id="org">@Model.OrgName</h4>
             </div>
-            <div class="well password">
+            <div class="well">
                     <h3>Change my password</h3>
-                    <h2>@Model.LName </h2>
                     <HR >
                     @using (Ajax.BeginForm("ChangePwd", "Home", new { }
-                                          , new AjaxOptions() { HttpMethod = "post", OnSuccess = "afterChangePwd" }
-                                          , new { id = "PwdForm" }))
+                      , new AjaxOptions() { HttpMethod = "post", OnSuccess = "afterChangePwd(data)" }
+                      , new { id = "pwdForm" }))
                     {
-                        <form >
+                        @Html.HiddenFor(model => model.Id);
+
                             <div class="form-group">
                                 <div class="">
-                                    <input type="password" class="form-control" id="pre-pwd" name="pre-pwd" required="required" placeholder="Previous password" />
+                                    <input type="password" class="form-control pwd" id="pre-pwd" name="prePwd" required="required" placeholder="Previous password" />
                                 </div>
                                 <div class="">
-                                    <input type="password" class="form-control" id="new-pwd" name="new-pwd" required="required" placeholder="New password" />
+                                    <input type="password" class="form-control pwd" id="new-pwd" name="newPwd" required="required" placeholder="New password" />
                                 </div>
                                 <div class="">
-                                    <input type="password" class="form-control" id="confirm-pwd" name="confirm-pwd" required="required" placeholder="Confirm password" />
+                                    <input type="password" class="form-control pwd" id="confirm-pwd" name="confirmPwd" required="required" placeholder="Confirm password" />
                                 </div>
                                 <span class="pwd-btns">
                                     <button class="btn btn-lg">Cancel</button>
                                     <input type="submit" id="btnModiPwd" value="Change Password" class="btn btn-lg btn-info" />
                                 </span>
                             </div>
-                        </form>
+
                     }
 
 
@@ -160,15 +249,78 @@
         <div class="col-md-6 ">
             <div class="well timezone">
                 <h3>Time Zone</h3>
-                <HR >
+                <HR>
+                <div>
+                    <div>Current time zone: </div>
+                    <div >Detected as <span id="cur-timezone"></span></div>
+                </div>
+                
+                @using (Ajax.BeginForm("UpdateTimeZone", "Home", new { }
+                , new AjaxOptions() { HttpMethod = "post", OnSuccess = "afterUpdateTimezone" }
+                , new { id = "timezone-form" }))
+                {
+                    @Html.HiddenFor(model => model.Id);
+                    <div>
+                        <input type="checkbox" name="set-default-timezone" id="set-default-timezone" />
+                        <span>Override default timezone </span>
+                    </div>
 
-                <h4>Current time zone:</h4>
-                <h4>Detected as Auckland</h4>
-                <HR >
+                    <div>
+                        @Html.DropDownList("timezone-dropdownlist", ViewBag.timezoneList as IEnumerable<SelectListItem>,
+                        new { @class = " dropdown-toggle form-control" })
+                    </div>
+                    <div>
+                        <input type="submit" class="btn btn-success" style="margin-left:5em" value="Updata Timezone" />
+                    </div>
+                }
+                    
+                     
+
+                <HR>
 
             </div>
             <div class="well permission">
                 <h3>My Permissions</h3>
+                @{ 
+                    string idStringGranted = "Per_Granted";
+                    string idStringRequest = "Per_Request";
+                    List<DataSource.Actions> allActions = ViewBag.AllActions;
+                    List<DataSource.Permission> curPermissons = ViewBag.CurUserActions;
+                    <table class="table">
+                        @foreach (var item in allActions)
+                        {
+                            var permissionStatus = curPermissons.FindAll(r => r.ActionId == item.Id).FirstOrDefault();
+                            string btnText = "";
+                            string btnClass = "";
+                            int actionId = item.Id;
+                            if (permissionStatus == null )
+                            {
+                                btnText = "Request";
+                                btnClass = "btn btn-info";
+                            }
+                            else
+                            {
+                                if (permissionStatus.Status == (short)DataSource.Enum.PermissionEnum.Granted)
+                                {
+                                    btnText = "Granted";
+                                    btnClass = "btn btn-default";
+                                }else if(permissionStatus.Status == (short)DataSource.Enum.PermissionEnum.Denied)
+                                {
+                                    btnText = "Denied";
+                                    btnClass = "btn btn-default";
+                                }
+                            }
+
+
+                            <tr>
+                                <td>@item.ActionName</td>
+                                <td>
+                                    <button class="@btnClass" actionId=@actionId onclick="requestPermission(this)">@btnText</button>
+                                </td>
+                            </tr>
+                        }
+                    </table>
+                }
 
             </div>
         </div>
@@ -181,15 +333,15 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
-                    <h3>Edit Profile</h3>
+                    <h3>Edit Profile</h3> 
                 </div>
                 <div class="modal-body">
                     @using (Ajax.BeginForm("UpdateName", "Home", new { }
-                                    , new AjaxOptions() { HttpMethod = "post", OnSuccess = "cc()" }))
+                , new AjaxOptions() { HttpMethod = "post", OnSuccess = "afterUpdateName(data)" }))
                     {
                         @Html.AntiForgeryToken()
                         @Html.HiddenFor(model => model.Password);
-                        @Html.HiddenFor(model => model.TimeZone);
+                        @Html.HiddenFor(model => model.TimeZoneId);
                         @Html.HiddenFor(model => model.PhotoLink);
                         @Html.HiddenFor(model => model.Id);
                         <div class="form-horizontal">
@@ -217,24 +369,42 @@
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                             <button type="submit" class="btn btn-primary">Update</button>
-                            <button type="button" class="btn btn-primary" id="update-name" onclick="cc()">UPDATE</button>
                         </div>
-
                     }
                     
                 </div>
 
             </div>
         </div>
-        <script type="text/javascript">
-            function afterUpdateName(data) {
-                alert("update succeed.");
-                if (data = "ok") {
-                    alert("update succeed.")
-                }
-            }
-        </script>
+       
 
+    </div>
+    <div id="edit-request-dialog" class="modal fade" >
+        <div class="modal-dialog"   role="document">            
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h3>Set Permissions: <span id="request-dialog-title"></span></h3>
+                    @using (Ajax.BeginForm("SetPermission", "Home", new { }
+                        , new AjaxOptions() { HttpMethod = "post", OnSuccess = "afterSetPermission(data)" }))
+                    {
+
+                        <div>
+                            <input type="hidden" name="actionId" id="permission-dialog-actionId" value=""/>
+                            <input type="hidden" name="userId" value=@Model.Id />
+                            <input type="radio" name="permission" value="0" /><span>Grant</span>
+                            <input type="radio" name="permission" value="1" /><span>Deny</span>
+                        </div>
+                        <input type="submit" class="btn btn-primary" value="Submit" />
+                    }
+                    
+                </div>
+
+            </div>
+
+        </div>
     </div>
 </body>
 

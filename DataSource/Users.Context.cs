@@ -18,7 +18,6 @@ namespace DataSource
         public UsersContainer()
             : base("name=UsersContainer")
         {
-            //Database.SetInitializer(new DropCreateDatabaseAlways<UsersContainer>());
         }
     
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
