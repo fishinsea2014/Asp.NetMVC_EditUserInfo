@@ -13,11 +13,14 @@
     <link href="~/Content/bootstrap.css" rel="stylesheet" />
     <link href="~/Content/bootstrap-theme.min.css" rel="stylesheet" />
     <link href="~/Content/bootstrapValidator.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-fileinput/css/fileinput.min.css" rel="stylesheet" />
     <script src="~/Scripts/jquery-3.3.1.min.js"></script>
     <script src="~/Scripts/bootstrap.js"></script>
+    <script src="~/Scripts/fileinput.min.js"></script>
     <script src="~/Scripts/bootstrapValidator.min.js"></script>
     <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/jstimezonedetect/1.0.4/jstz.min.js'></script>
+
 
     @*<script src="~/Scripts/jstz.min.js"></script>*@
 
@@ -137,13 +140,40 @@
 
             setCurTimezone();
 
+            $("#upload-photo").fileinput({
+
+                previewFileType: "image",
+                browseClass: "btn btn-success",
+                browseLabel: "Select",
+                browseIcon: "<i class=\"glyphicon glyphicon-picture\"></i> ",
+                removeClass: "btn btn-danger",
+                removeLabel: "Delete",
+                removeIcon: "<i class=\"glyphicon glyphicon-trash\"></i> ",
+                uploadClass: "btn btn-info",
+                uploadLabel: "Upload",
+                uploadIcon: "<i class=\"glyphicon glyphicon-upload\"></i> ",
+                showUpload: true,
+                uploadUrl: '/Home/UploadFile',
+                allowedFileExtensions: ['jpg', 'png'],
+                maxFileSize: 2000,
+                maxFileCount: 1,
+            }).on("fileuploaded", function (event, data, msg) {
+                    var msg = data.response;
+                    if (msg.result == "ok") {
+                        $("#PhotoLink").val(msg.imageName);
+                        alert("Upload photo succeed.");
+                    } else {
+                        alert("Failed to upload photo");
+                    }
+                });
+
         });
 
         function setCurTimezone() {
             var nowDate = new Date().getTime().toLocaleString();
             //var jstz = require('jstz');
             var timezone = jstz.determine();
-            $("#cur-timezone").text(timezone.name() );
+            $("#cur-timezone").text(timezone.name());
         }
 
         function afterChangePwd(data) {
@@ -170,6 +200,7 @@
             $("#full-name").text(data.FName + ' ' + data.LName);
             $("#title").text(data.Title);
             $("#org").text(data.Org);
+            $("#photo-thumbnail").attr('src',"/UploadFiles/" + data.PhotoLink);
         }
 
         function afterUpdateTimezone(data) {
@@ -182,16 +213,41 @@
 
         function requestPermission(obj) {
             var thisObj = $(obj);
-            var actionId = thisObj.attr("actionId");            
+            var actionId = thisObj.attr("actionId");
             $("#edit-request-dialog").modal();
             $("#permission-dialog-actionId").attr("");
             $("#request-dialog-title").text(actionId);
-            $("#permission-dialog-actionId").val(actionId);            
+            $("#permission-dialog-actionId").val(actionId);
         }
 
         function afterSetPermission(data) {
-            alert(data);
+            //let permissionMap = new Map();
+            $("#edit-request-dialog").modal('hide');
+            //在此添加注释
+            let ps = document.getElementsByClassName('permission-btn');
+            for (var p of ps) {
+                let actionId = parseInt(p.getAttribute('actionid'));
+                console.log(actionId);
+                for (var item of data) {
+                    if (item.ActionId == actionId) {
+                        p.innerHTML = updatePermissionBtn(item.Status);
+                    }
+                }
+            }
+
         }
+
+        function updatePermissionBtn(status) {
+            if (status == 0) {
+                return "Granted";
+            } else if (status == 1) {
+                return "Denied";
+            }
+            return "Pending";
+
+        }
+
+
     </script>
 </head>
 <body>
@@ -203,7 +259,7 @@
                 <div>
                     <div class="pull-left">
                         <a href="#" class="thumbnail">
-                            <img src="#" alt="Alternate Text" width="50" height="30" />
+                            <img src="/UploadFiles/@Model.PhotoLink" id="photo-thumbnail" alt="Alternate Text" width="50" height="30" />
                         </a>
                     </div>
                     <div class="center-block">
@@ -281,12 +337,10 @@
             </div>
             <div class="well permission">
                 <h3>My Permissions</h3>
-                @{ 
-                    string idStringGranted = "Per_Granted";
-                    string idStringRequest = "Per_Request";
+                @{                    
                     List<DataSource.Actions> allActions = ViewBag.AllActions;
                     List<DataSource.Permission> curPermissons = ViewBag.CurUserActions;
-                    <table class="table">
+                    <table class="table" id="show-permissions">
                         @foreach (var item in allActions)
                         {
                             var permissionStatus = curPermissons.FindAll(r => r.ActionId == item.Id).FirstOrDefault();
@@ -296,18 +350,18 @@
                             if (permissionStatus == null )
                             {
                                 btnText = "Request";
-                                btnClass = "btn btn-info";
+                                btnClass = "btn btn-info permission-btn";
                             }
                             else
                             {
                                 if (permissionStatus.Status == (short)DataSource.Enum.PermissionEnum.Granted)
                                 {
                                     btnText = "Granted";
-                                    btnClass = "btn btn-default";
+                                    btnClass = "btn btn-default permission-btn";
                                 }else if(permissionStatus.Status == (short)DataSource.Enum.PermissionEnum.Denied)
                                 {
                                     btnText = "Denied";
-                                    btnClass = "btn btn-default";
+                                    btnClass = "btn btn-default permission-btn";
                                 }
                             }
 
@@ -364,6 +418,15 @@
                             <div class="form-group">
                                 @Html.LabelFor(model => model.OrgName, new { @class = "col-md-3" })
                                 @Html.EditorFor(model => model.OrgName, new { @class = "col-md-9" })
+                            </div>
+
+                            <div class="form-group">
+                                @*@Html.LabelFor(model => model.PhotoLink, new { @class = "col-md-3" })
+                                @Html.EditorFor(model => model.PhotoLink, new { @class = "col-md-9" })
+                                <button class="btn btn-info" id="choose-photo">Browse...</button>*@
+                                
+                               <input id="upload-photo" name="PhotoLink" type="file" accept="image/" />
+                                
                             </div>
                         </div>
                         <div class="modal-footer">

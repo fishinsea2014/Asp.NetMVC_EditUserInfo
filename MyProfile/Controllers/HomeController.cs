@@ -102,7 +102,8 @@ namespace MyProfile.Controllers
                     FName = user.FName,
                     LName = user.LName,
                     Title = user.Title,
-                    Org = user.OrgName
+                    Org = user.OrgName,
+                    PhotoLink=user.PhotoLink
 
                 };
                 return Json(userInfo);
@@ -182,9 +183,13 @@ namespace MyProfile.Controllers
                 curPermission.Status = (short)permissionRes;
                 permissionService.EditEntity(curPermission);
             }
+
+            var allPermissions = permissionService.LoadEntities(p => p.UserId == userId).ToList();
+            var res = (from p in allPermissions
+                       select new { p.UserId, p.ActionId, p.Status }).ToList();
             
             
-            return Redirect("Index");
+            return Json(res);
         }
 
         public ActionResult Error()
@@ -192,6 +197,21 @@ namespace MyProfile.Controllers
             return View();
         }
 
+        public ActionResult UploadFile()
+        {
+            var image = Request.Files;
+            if (image!=null && image.Count > 0)
+            {
+                string savePath = "/UploadFiles/";
+                var _image = image[0];
+                string _imageExt = System.IO.Path.GetExtension(_image.FileName).ToLower();
+                string _imageName = DateTime.Now.ToString("hhmmss_ddMMyy") + _imageExt;
+
+                _image.SaveAs(Server.MapPath(savePath + _imageName));
+                return Json(new { imageName = _imageName, result="ok" },JsonRequestBehavior.AllowGet);                
+            }
+            return Json(new { result = "failed" },JsonRequestBehavior.AllowGet);
+        }
 
 
         #region Useless 
