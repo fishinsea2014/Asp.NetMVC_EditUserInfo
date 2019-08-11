@@ -7,6 +7,6 @@ Edit user's info by MVC
 
 Technology
 ----------
-- ASP.NET 4.6, MVC, Bootstrap, JQuery, Axios
+- ASP.NET 4.6, ASP.NET MVC 5, Bootstrap, JQuery, Axios
 - Three layers architecture.
-- EF data model.
+- ENTITY FRAMEWORK 5.
